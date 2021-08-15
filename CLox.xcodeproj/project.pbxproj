@@ -8,6 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		75CD1CF826C6B20D00B439FB /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CD1CF726C6B20D00B439FB /* main.c */; };
+		75CD1D0026C6B21E00B439FB /* linked_list.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CD1CFF26C6B21E00B439FB /* linked_list.c */; };
+		75CD1D0326C6C49D00B439FB /* exceptions.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CD1D0226C6C49D00B439FB /* exceptions.c */; };
+		75CD1D1126C7016000B439FB /* LinkedListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 75CD1D1026C7016000B439FB /* LinkedListTests.m */; };
+		75CD1D1226C7020500B439FB /* linked_list.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CD1CFF26C6B21E00B439FB /* linked_list.c */; };
+		75CD1D1326C7020900B439FB /* exceptions.c in Sources */ = {isa = PBXBuildFile; fileRef = 75CD1D0226C6C49D00B439FB /* exceptions.c */; };
+		75CD1D1526C7025E00B439FB /* linked_list.h in Headers */ = {isa = PBXBuildFile; fileRef = 75CD1CFE26C6B21E00B439FB /* linked_list.h */; };
+		75CD1D1626C7025E00B439FB /* exceptions.h in Headers */ = {isa = PBXBuildFile; fileRef = 75CD1D0126C6C49D00B439FB /* exceptions.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,10 +32,24 @@
 /* Begin PBXFileReference section */
 		75CD1CF426C6B20D00B439FB /* CLox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CLox; sourceTree = BUILT_PRODUCTS_DIR; };
 		75CD1CF726C6B20D00B439FB /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		75CD1CFE26C6B21E00B439FB /* linked_list.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = linked_list.h; sourceTree = "<group>"; };
+		75CD1CFF26C6B21E00B439FB /* linked_list.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = linked_list.c; sourceTree = "<group>"; };
+		75CD1D0126C6C49D00B439FB /* exceptions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = exceptions.h; sourceTree = "<group>"; };
+		75CD1D0226C6C49D00B439FB /* exceptions.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = exceptions.c; sourceTree = "<group>"; };
+		75CD1D0826C7014700B439FB /* CLoxUnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CLoxUnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		75CD1D0C26C7014700B439FB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		75CD1D1026C7016000B439FB /* LinkedListTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LinkedListTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		75CD1CF126C6B20D00B439FB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		75CD1D0526C7014700B439FB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -42,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				75CD1CF626C6B20D00B439FB /* CLox */,
+				75CD1D0926C7014700B439FB /* CLoxUnitTests */,
 				75CD1CF526C6B20D00B439FB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -50,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				75CD1CF426C6B20D00B439FB /* CLox */,
+				75CD1D0826C7014700B439FB /* CLoxUnitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -58,11 +81,36 @@
 			isa = PBXGroup;
 			children = (
 				75CD1CF726C6B20D00B439FB /* main.c */,
+				75CD1CFE26C6B21E00B439FB /* linked_list.h */,
+				75CD1CFF26C6B21E00B439FB /* linked_list.c */,
+				75CD1D0126C6C49D00B439FB /* exceptions.h */,
+				75CD1D0226C6C49D00B439FB /* exceptions.c */,
 			);
 			path = CLox;
 			sourceTree = "<group>";
 		};
+		75CD1D0926C7014700B439FB /* CLoxUnitTests */ = {
+			isa = PBXGroup;
+			children = (
+				75CD1D0C26C7014700B439FB /* Info.plist */,
+				75CD1D1026C7016000B439FB /* LinkedListTests.m */,
+			);
+			path = CLoxUnitTests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		75CD1D1426C7024700B439FB /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75CD1D1526C7025E00B439FB /* linked_list.h in Headers */,
+				75CD1D1626C7025E00B439FB /* exceptions.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		75CD1CF326C6B20D00B439FB /* CLox */ = {
@@ -82,6 +130,24 @@
 			productReference = 75CD1CF426C6B20D00B439FB /* CLox */;
 			productType = "com.apple.product-type.tool";
 		};
+		75CD1D0726C7014700B439FB /* CLoxUnitTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 75CD1D0D26C7014700B439FB /* Build configuration list for PBXNativeTarget "CLoxUnitTests" */;
+			buildPhases = (
+				75CD1D1426C7024700B439FB /* Headers */,
+				75CD1D0426C7014700B439FB /* Sources */,
+				75CD1D0526C7014700B439FB /* Frameworks */,
+				75CD1D0626C7014700B439FB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CLoxUnitTests;
+			productName = CLoxUnitTests;
+			productReference = 75CD1D0826C7014700B439FB /* CLoxUnitTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -91,6 +157,9 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					75CD1CF326C6B20D00B439FB = {
+						CreatedOnToolsVersion = 12.5.1;
+					};
+					75CD1D0726C7014700B439FB = {
 						CreatedOnToolsVersion = 12.5.1;
 					};
 				};
@@ -109,16 +178,39 @@
 			projectRoot = "";
 			targets = (
 				75CD1CF326C6B20D00B439FB /* CLox */,
+				75CD1D0726C7014700B439FB /* CLoxUnitTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		75CD1D0626C7014700B439FB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		75CD1CF026C6B20D00B439FB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				75CD1D0326C6C49D00B439FB /* exceptions.c in Sources */,
+				75CD1D0026C6B21E00B439FB /* linked_list.c in Sources */,
 				75CD1CF826C6B20D00B439FB /* main.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		75CD1D0426C7014700B439FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				75CD1D1226C7020500B439FB /* linked_list.c in Sources */,
+				75CD1D1126C7016000B439FB /* LinkedListTests.m in Sources */,
+				75CD1D1326C7020900B439FB /* exceptions.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,6 +348,40 @@
 			};
 			name = Release;
 		};
+		75CD1D0E26C7014700B439FB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = ELT5AES94A;
+				INFOPLIST_FILE = CLoxUnitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.daltonclaybrook.CLoxUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		75CD1D0F26C7014700B439FB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = ELT5AES94A;
+				INFOPLIST_FILE = CLoxUnitTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.daltonclaybrook.CLoxUnitTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -273,6 +399,15 @@
 			buildConfigurations = (
 				75CD1CFC26C6B20D00B439FB /* Debug */,
 				75CD1CFD26C6B20D00B439FB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		75CD1D0D26C7014700B439FB /* Build configuration list for PBXNativeTarget "CLoxUnitTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				75CD1D0E26C7014700B439FB /* Debug */,
+				75CD1D0F26C7014700B439FB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
