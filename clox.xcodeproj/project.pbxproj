@@ -7,7 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BEE03F3F26F7A890000CC584 /* vm.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE03F3E26F7A890000CC584 /* vm.c */; };
 		BEF9388D26E99DF70026B650 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9388C26E99DF70026B650 /* main.c */; };
+		BEF9389626E9A1260026B650 /* chunk.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389526E9A1260026B650 /* chunk.c */; };
+		BEF9389926E9A24B0026B650 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389826E9A24B0026B650 /* memory.c */; };
+		BEF9389C26E9A8F20026B650 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389B26E9A8F20026B650 /* debug.c */; };
+		BEF9389F26E9AD740026B650 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389E26E9AD740026B650 /* value.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +28,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BEE03F3D26F7A890000CC584 /* vm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vm.h; sourceTree = "<group>"; };
+		BEE03F3E26F7A890000CC584 /* vm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vm.c; sourceTree = "<group>"; };
 		BEF9388926E99DF70026B650 /* clox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = clox; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEF9388C26E99DF70026B650 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
+		BEF9389326E99E2D0026B650 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		BEF9389426E99EED0026B650 /* chunk.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chunk.h; sourceTree = "<group>"; };
+		BEF9389526E9A1260026B650 /* chunk.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = chunk.c; sourceTree = "<group>"; };
+		BEF9389726E9A24B0026B650 /* memory.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = memory.h; sourceTree = "<group>"; };
+		BEF9389826E9A24B0026B650 /* memory.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = memory.c; sourceTree = "<group>"; };
+		BEF9389A26E9A8F20026B650 /* debug.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		BEF9389B26E9A8F20026B650 /* debug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
+		BEF9389D26E9AD740026B650 /* value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = value.h; sourceTree = "<group>"; };
+		BEF9389E26E9AD740026B650 /* value.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +74,17 @@
 			isa = PBXGroup;
 			children = (
 				BEF9388C26E99DF70026B650 /* main.c */,
+				BEF9389426E99EED0026B650 /* chunk.h */,
+				BEF9389526E9A1260026B650 /* chunk.c */,
+				BEF9389726E9A24B0026B650 /* memory.h */,
+				BEF9389826E9A24B0026B650 /* memory.c */,
+				BEF9389326E99E2D0026B650 /* common.h */,
+				BEF9389A26E9A8F20026B650 /* debug.h */,
+				BEF9389B26E9A8F20026B650 /* debug.c */,
+				BEE03F3D26F7A890000CC584 /* vm.h */,
+				BEE03F3E26F7A890000CC584 /* vm.c */,
+				BEF9389D26E9AD740026B650 /* value.h */,
+				BEF9389E26E9AD740026B650 /* value.c */,
 			);
 			path = clox;
 			sourceTree = "<group>";
@@ -118,7 +145,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BEF9389F26E9AD740026B650 /* value.c in Sources */,
 				BEF9388D26E99DF70026B650 /* main.c in Sources */,
+				BEF9389926E9A24B0026B650 /* memory.c in Sources */,
+				BEF9389626E9A1260026B650 /* chunk.c in Sources */,
+				BEE03F3F26F7A890000CC584 /* vm.c in Sources */,
+				BEF9389C26E9A8F20026B650 /* debug.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
