@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		BEE03F3F26F7A890000CC584 /* vm.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE03F3E26F7A890000CC584 /* vm.c */; };
+		BEE27AB926F81AAF00F9B3E8 /* compiler.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE27AB826F81AAF00F9B3E8 /* compiler.c */; };
+		BEE27ABC26F81ADB00F9B3E8 /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE27ABB26F81ADB00F9B3E8 /* scanner.c */; };
 		BEF9388D26E99DF70026B650 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9388C26E99DF70026B650 /* main.c */; };
 		BEF9389626E9A1260026B650 /* chunk.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389526E9A1260026B650 /* chunk.c */; };
 		BEF9389926E9A24B0026B650 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389826E9A24B0026B650 /* memory.c */; };
@@ -30,6 +32,10 @@
 /* Begin PBXFileReference section */
 		BEE03F3D26F7A890000CC584 /* vm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vm.h; sourceTree = "<group>"; };
 		BEE03F3E26F7A890000CC584 /* vm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vm.c; sourceTree = "<group>"; };
+		BEE27AB726F81AAF00F9B3E8 /* compiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
+		BEE27AB826F81AAF00F9B3E8 /* compiler.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = compiler.c; sourceTree = "<group>"; };
+		BEE27ABA26F81ADB00F9B3E8 /* scanner.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = scanner.h; sourceTree = "<group>"; };
+		BEE27ABB26F81ADB00F9B3E8 /* scanner.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = scanner.c; sourceTree = "<group>"; };
 		BEF9388926E99DF70026B650 /* clox */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = clox; sourceTree = BUILT_PRODUCTS_DIR; };
 		BEF9388C26E99DF70026B650 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		BEF9389326E99E2D0026B650 /* common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
@@ -83,6 +89,10 @@
 				BEF9389B26E9A8F20026B650 /* debug.c */,
 				BEE03F3D26F7A890000CC584 /* vm.h */,
 				BEE03F3E26F7A890000CC584 /* vm.c */,
+				BEE27AB726F81AAF00F9B3E8 /* compiler.h */,
+				BEE27AB826F81AAF00F9B3E8 /* compiler.c */,
+				BEE27ABA26F81ADB00F9B3E8 /* scanner.h */,
+				BEE27ABB26F81ADB00F9B3E8 /* scanner.c */,
 				BEF9389D26E9AD740026B650 /* value.h */,
 				BEF9389E26E9AD740026B650 /* value.c */,
 			);
@@ -149,6 +159,8 @@
 				BEF9388D26E99DF70026B650 /* main.c in Sources */,
 				BEF9389926E9A24B0026B650 /* memory.c in Sources */,
 				BEF9389626E9A1260026B650 /* chunk.c in Sources */,
+				BEE27ABC26F81ADB00F9B3E8 /* scanner.c in Sources */,
+				BEE27AB926F81AAF00F9B3E8 /* compiler.c in Sources */,
 				BEE03F3F26F7A890000CC584 /* vm.c in Sources */,
 				BEF9389C26E9A8F20026B650 /* debug.c in Sources */,
 			);
