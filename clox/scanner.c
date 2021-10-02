@@ -134,6 +134,8 @@ static TokenType checkKeyword(int start, int length, const char* rest, TokenType
     return TOKEN_IDENTIFIER;
 }
 
+/// The branching diagram below is called a ["Trie,"](https://en.wikipedia.org/wiki/Trie) which is a special
+/// case of a Deterministic Finite Automaton (DFA).
 static TokenType identifierType() {
     switch (scanner.start[0]) {
         case 'a': return checkKeyword(1, 2, "nd", TOKEN_AND);

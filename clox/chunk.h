@@ -5,8 +5,20 @@
 #include "value.h"
 
 typedef enum {
-    /// Load a constant for use
+    /// Push a constant onto the stack
     OP_CONSTANT,
+    /// Push `nil` onto the stack (Special case of `OP_CONSTANT`)
+    OP_NIL,
+    /// Push `true` onto the stack (Special case of `OP_CONSTANT`)
+    OP_TRUE,
+    /// Push `false` onto the stack (Special case of `OP_CONSTANT`)
+    OP_FALSE,
+    /// Compare two values and return a boolean
+    OP_EQUAL,
+    /// Compare two values and return a boolean
+    OP_GREATER,
+    /// Compare two values and return a boolean
+    OP_LESS,
     /// Add two values
     OP_ADD,
     /// Subtract a value from another
@@ -15,6 +27,8 @@ typedef enum {
     OP_MULTIPLY,
     /// Divide a value from another
     OP_DIVIDE,
+    /// "Not" a value using the `!` operator
+    OP_NOT,
     /// Negate a value
     OP_NEGATE,
     /// Return from the current function
