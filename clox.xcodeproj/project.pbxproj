@@ -15,6 +15,7 @@
 		BEF9389926E9A24B0026B650 /* memory.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389826E9A24B0026B650 /* memory.c */; };
 		BEF9389C26E9A8F20026B650 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389B26E9A8F20026B650 /* debug.c */; };
 		BEF9389F26E9AD740026B650 /* value.c in Sources */ = {isa = PBXBuildFile; fileRef = BEF9389E26E9AD740026B650 /* value.c */; };
+		BEFDC3D2270A2A8000EC9900 /* object.c in Sources */ = {isa = PBXBuildFile; fileRef = BEFDC3D1270A2A8000EC9900 /* object.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +48,8 @@
 		BEF9389B26E9A8F20026B650 /* debug.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
 		BEF9389D26E9AD740026B650 /* value.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = value.h; sourceTree = "<group>"; };
 		BEF9389E26E9AD740026B650 /* value.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = value.c; sourceTree = "<group>"; };
+		BEFDC3D0270A2A8000EC9900 /* object.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = object.h; sourceTree = "<group>"; };
+		BEFDC3D1270A2A8000EC9900 /* object.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = object.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,6 +97,8 @@
 				BEE27ABA26F81ADB00F9B3E8 /* scanner.h */,
 				BEE27ABB26F81ADB00F9B3E8 /* scanner.c */,
 				BEF9389D26E9AD740026B650 /* value.h */,
+				BEFDC3D0270A2A8000EC9900 /* object.h */,
+				BEFDC3D1270A2A8000EC9900 /* object.c */,
 				BEF9389E26E9AD740026B650 /* value.c */,
 			);
 			path = clox;
@@ -158,6 +163,7 @@
 				BEF9389F26E9AD740026B650 /* value.c in Sources */,
 				BEF9388D26E99DF70026B650 /* main.c in Sources */,
 				BEF9389926E9A24B0026B650 /* memory.c in Sources */,
+				BEFDC3D2270A2A8000EC9900 /* object.c in Sources */,
 				BEF9389626E9A1260026B650 /* chunk.c in Sources */,
 				BEE27ABC26F81ADB00F9B3E8 /* scanner.c in Sources */,
 				BEE27AB926F81AAF00F9B3E8 /* compiler.c in Sources */,
