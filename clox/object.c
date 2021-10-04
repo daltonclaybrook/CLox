@@ -7,7 +7,7 @@
 #include "vm.h"
 
 #define ALLOCATE_OBJ(type, objectType) \
-(type*)allocateObject(sizeof(type), objectType)
+    (type*)allocateObject(sizeof(type), objectType)
 
 static Obj* allocateObject(size_t size, ObjType type) {
     Obj* object = (Obj*)reallocate(NULL, 0, size);
@@ -18,23 +18,21 @@ static Obj* allocateObject(size_t size, ObjType type) {
     return object;
 }
 
-static ObjString* allocateString(char* chars, int length) {
-    ObjString* string = ALLOCATE_OBJ(ObjString, OBJ_STRING);
-    string->length = length;
-    string->chars = chars;
-    return string;
-}
-
-/// Similar to `copyString`, but here we are free to take ownership of the provided string
-ObjString* takeString(char* chars, int length) {
-    return allocateString(chars, length);
+ObjString* stringWithUninitializedChars(int stringLength) {
+    size_t size = sizeof(ObjString) + sizeof(char) * (stringLength + 1);
+    ObjString* object = (ObjString*)allocateObject(size, OBJ_STRING);
+    object->length = stringLength;
+    return object;
 }
 
 ObjString* copyString(const char* chars, int length) {
-    char* heapChars = ALLOCATE(char, length + 1);
-    memcpy(heapChars, chars, length);
-    heapChars[length] = '\0';
-    return allocateString(heapChars, length);
+    size_t size = sizeof(ObjString) + sizeof(char) * (length + 1);
+    ObjString* object = (ObjString*)allocateObject(size, OBJ_STRING);
+    object->length = length;
+
+    memcpy(object->chars, chars, length);
+    object->chars[length] = '\0';
+    return object;
 }
 
 void printObject(Value value) {
