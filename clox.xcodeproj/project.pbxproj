@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BECBE1492710D5DF0012C919 /* table.c in Sources */ = {isa = PBXBuildFile; fileRef = BECBE1482710D5DF0012C919 /* table.c */; };
 		BEE03F3F26F7A890000CC584 /* vm.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE03F3E26F7A890000CC584 /* vm.c */; };
 		BEE27AB926F81AAF00F9B3E8 /* compiler.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE27AB826F81AAF00F9B3E8 /* compiler.c */; };
 		BEE27ABC26F81ADB00F9B3E8 /* scanner.c in Sources */ = {isa = PBXBuildFile; fileRef = BEE27ABB26F81ADB00F9B3E8 /* scanner.c */; };
@@ -31,6 +32,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BECBE1472710D5DF0012C919 /* table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = table.h; sourceTree = "<group>"; };
+		BECBE1482710D5DF0012C919 /* table.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = table.c; sourceTree = "<group>"; };
 		BEE03F3D26F7A890000CC584 /* vm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = vm.h; sourceTree = "<group>"; };
 		BEE03F3E26F7A890000CC584 /* vm.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = vm.c; sourceTree = "<group>"; };
 		BEE27AB726F81AAF00F9B3E8 /* compiler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = compiler.h; sourceTree = "<group>"; };
@@ -100,6 +103,8 @@
 				BEFDC3D0270A2A8000EC9900 /* object.h */,
 				BEFDC3D1270A2A8000EC9900 /* object.c */,
 				BEF9389E26E9AD740026B650 /* value.c */,
+				BECBE1472710D5DF0012C919 /* table.h */,
+				BECBE1482710D5DF0012C919 /* table.c */,
 			);
 			path = clox;
 			sourceTree = "<group>";
@@ -160,6 +165,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BECBE1492710D5DF0012C919 /* table.c in Sources */,
 				BEF9389F26E9AD740026B650 /* value.c in Sources */,
 				BEF9388D26E99DF70026B650 /* main.c in Sources */,
 				BEF9389926E9A24B0026B650 /* memory.c in Sources */,
