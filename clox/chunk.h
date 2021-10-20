@@ -15,6 +15,10 @@ typedef enum {
     OP_FALSE,
     /// Pop a value off of the stack, effectively discarding it
     OP_POP,
+    /// Load the value of a local variable from the stack and push it onto the stack
+    OP_GET_LOCAL,
+    /// Get a value of the top of the stack and set is as the value of a local variable (also on the stack)
+    OP_SET_LOCAL,
     /// Get the value of a named variable from the globals table and push it onto the stack
     OP_GET_GLOBAL,
     /// Define a global variable whose identifier is stored in the constants table
