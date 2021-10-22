@@ -15,6 +15,7 @@
  implemented in jlox.
  */
 
+/// A collection of useful state representing the progress of the parser
 typedef struct {
     Token current;
     Token previous;
@@ -22,6 +23,15 @@ typedef struct {
     bool panicMode;
 } Parser;
 
+/// A sorted hierarchy of precedence values used when parsing expressions.
+///
+/// When parsing an expression with an operator, the parser uses this hierarchy to determine the extent of the
+/// subexpression to use as the subsequent operand.
+/// For example, consider the expression `1 + 2 * 3`. The `2 * 3` portion of the full expression needs to be grouped
+/// and evaluated first in order to become the right operand to the plus expression. After we've parsed the "plus"
+/// token, we use this precedence hierarchy to effectively say, "keep parsing tokens to use in the right operand
+/// so long as the token precedence continues to be higher than `PREC_TERM`, which is the precedence of the
+/// plus operator.
 typedef enum {
     PREC_NONE,
     PREC_ASSIGNMENT,  // =
@@ -36,19 +46,24 @@ typedef enum {
     PREC_PRIMARY
 } Precedence;
 
+/// A function pointer used to store parse functions in a table for quick lookup
 typedef void (*ParseFn)(bool canAssign);
 
+/// These rules are mapped to tokens and describe how a token should be parsed
 typedef struct {
     ParseFn prefix;
     ParseFn infix;
     Precedence precedence;
 } ParseRule;
 
+/// A struct used to associate the name of a local variable to it's depth on the stack
 typedef struct {
     Token name;
     int depth;
 } Local;
 
+/// The current state of compilation, for example, the list of local variables and the current
+/// scope depth.
 typedef struct {
     Local locals[UINT8_COUNT];
     int localCount;
@@ -63,6 +78,10 @@ static Chunk* currentChunk() {
     return compilingChunk;
 }
 
+/// Report a compilation error to `stderr` and enter "panic mode." Panic mode is use to prevent a cascade
+/// of syntax errors from being reported once the first one is found. After parsing a declaration, if panic mode
+/// is set, the compiler will "synchronize" its state by parsing and discarding tokens until it reaches a
+/// "synchronization point." At this point, compilation proceeds and more errors may be reported.
 static void errorAt(Token* token, const char* message) {
     if (parser.panicMode) return;
     parser.panicMode = true;
@@ -80,14 +99,19 @@ static void errorAt(Token* token, const char* message) {
     parser.hadError = true;
 }
 
+/// Convenience function for reporting an error with the previously parsed token
 static void error(const char* message) {
     errorAt(&parser.previous, message);
 }
 
+/// Convenience function for reporting an error with the current token
 static void errorAtCurrent(const char* message) {
     errorAt(&parser.current, message);
 }
 
+/// Set the `current` token as the `previous` token, and scan the next token into the `current` field. If the
+/// scanned token is an "error" token—meaning that the scanner encountered an error of its own—the
+/// function continues on to the next token.
 static void advance() {
     parser.previous = parser.current;
 
@@ -99,6 +123,7 @@ static void advance() {
     }
 }
 
+/// Assert that the current token has the provided type, then advance, or emit the provided error message
 static void consume(TokenType type, const char* message) {
     if (parser.current.type == type) {
         advance();
@@ -108,29 +133,38 @@ static void consume(TokenType type, const char* message) {
     errorAtCurrent(message);
 }
 
+/// Returns true if the current token has a type equal to the provided type
 static bool check(TokenType type) {
     return parser.current.type == type;
 }
 
+/// Returns true and advances if the current token type equals the provided type, otherwise, returns false
+/// and does not advance.
 static bool match(TokenType type) {
     if (!check(type)) return false;
     advance();
     return true;
 }
 
+/// Append one byte of bytecode onto the current chunk. This might be an opcode or an operand to the opcode.
 static void emitByte(uint8_t byte) {
     writeChunk(currentChunk(), byte, parser.previous.line);
 }
 
+/// Append two bytes of bytecode onto the current chunk. This is usually an opcode + its operand,
+/// e.g. `OP_SET_LOCAL <var>`
 static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte1);
     emitByte(byte2);
 }
 
+/// Append the `OP_RETURN` opcode onto the current chunk
 static void emitReturn() {
     emitByte(OP_RETURN);
 }
 
+/// Adds a value to the constants table and returns its index. The index is used in the bytecode to
+/// represent the constant.
 static uint8_t makeConstant(Value value) {
     int constant = addConstant(currentChunk(), value);
     if (constant > UINT8_MAX) {
@@ -141,16 +175,19 @@ static uint8_t makeConstant(Value value) {
     return (uint8_t)constant;
 }
 
+/// Emit the necessary bytecode to push the provided value onto the stack
 static void emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
 }
 
+/// Initialize the provided compiler struct
 static void initCompiler(Compiler* compiler) {
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
     current = compiler;
 }
 
+/// Emit the necessary bytecode to terminate the chunk.
 static void endCompiler() {
     emitReturn();
 #ifdef DEBUG_PRINT_CODE
@@ -160,10 +197,12 @@ static void endCompiler() {
 #endif
 }
 
+/// Increment the current scope depth for local variables on the stack
 static void beginScope() {
     current->scopeDepth++;
 }
 
+/// Decrement the current scope depth for local variables on the stack
 static void endScope() {
     current->scopeDepth--;
 
@@ -174,17 +213,22 @@ static void endScope() {
     }
 }
 
+// MARK: - Function declaration prototypes
+
 static void expression(void);
 static void statement(void);
 static void declaration(void);
 static ParseRule* getRule(TokenType type);
 static void parsePrecedence(Precedence precedence);
 
+/// Adds the provided identifier to the constants table by copying the identifier name and returns the
+/// index of the identifier in the constants table.
 static uint8_t identifierConstant(Token* name) {
     return makeConstant(OBJ_VAL((Obj*)copyString(name->start,
                                                  name->length)));
 }
 
+/// Check if two identifiers are equal
 static bool identifiersEqual(Token* a, Token* b) {
     if (a->length != b->length) return false;
     return memcmp(a->start, b->start, a->length) == 0;
@@ -206,6 +250,8 @@ static int resolveLocal(Compiler* compiler, Token* name) {
     return -1;
 }
 
+/// Add an uninitialized local variable to the locals array. Note: this function does not emit bytecode, it merely
+/// affects compiler state.
 static void addLocal(Token name) {
     if (current->localCount == UINT8_COUNT) {
         error("Too many local variables in function.");
@@ -218,6 +264,9 @@ static void addLocal(Token name) {
     local->depth = -1;
 }
 
+/// When the previously parsed token is the identifier of a variable declaration, use this function to
+/// add the variable to the locals array. If another variable already exists in the locals array with the
+/// same scope depth, an error is emitted.
 static void declareVariable() {
     if (current->scopeDepth == 0) return;
 
@@ -236,6 +285,8 @@ static void declareVariable() {
     addLocal(*name);
 }
 
+/// Parse the identifier of a variable declaration and store it appropriate, either in the locals array,
+/// or in the constants table if it is a global variable.
 static uint8_t parseVariable(const char* errorMessage) {
     consume(TOKEN_IDENTIFIER, errorMessage);
 
@@ -252,6 +303,8 @@ static void markInitialized() {
     current->locals[current->localCount - 1].depth = current->scopeDepth;
 }
 
+/// After a variable expression has been parsed, mark the variable as "initialized" by setting it's depth field
+/// if it is a local variable, or by emitting the bytecode to define a global variable.
 static void defineVariable(uint8_t global) {
     if (current->scopeDepth > 0) {
         // If we're defining a local variable, we don't need to emit any bytecode,
@@ -264,6 +317,8 @@ static void defineVariable(uint8_t global) {
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
+/// Emit bytecode for the binary operator by evaluating its righthand operand. This function uses the precedence
+/// rule of the operator to determine the extent of the expression to parse into the right operand.
 static void binary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
     ParseRule* rule = getRule(operatorType);
@@ -284,6 +339,7 @@ static void binary(bool canAssign) {
     }
 }
 
+/// Emit bytecode for a keyword literal. Number and string literals are handled by different functions.
 static void literal(bool canAssign) {
     switch (parser.previous.type) {
         case TOKEN_FALSE: emitByte(OP_FALSE); break;
@@ -293,16 +349,19 @@ static void literal(bool canAssign) {
     }
 }
 
+/// Parse the complete expression up to the right parenthesis, then consume the parenthesis.
 static void grouping(bool canAssign) {
     expression();
     consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 }
 
+/// Add a number literal to the constants table and emit bytecode to push the value onto the stack
 static void number(bool canAssign) {
     double value = strtod(parser.previous.start, NULL);
     emitConstant(NUMBER_VAL(value));
 }
 
+/// Add a string literal to the constants table and emit bytecode to push the value onto the stack
 static void string(bool canAssign) {
     emitConstant(OBJ_VAL((Obj*)copyString(parser.previous.start + 1,
                                     parser.previous.length - 2)));
@@ -331,10 +390,13 @@ static void namedVariable(Token name, bool canAssign) {
     }
 }
 
+/// Emit bytecode to access as variable. This might represent an assignment or a getter based on whether the
+/// next token is a '=' and if assignment is allowed in the current expression.
 static void variable(bool canAssign) {
     namedVariable(parser.previous, canAssign);
 }
 
+/// Emit bytecode for a unary operator after parsing the operand.
 static void unary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
 
@@ -349,6 +411,9 @@ static void unary(bool canAssign) {
     }
 }
 
+/// A mapping of parse rules for each token. Tokens may have 0, 1, or 2 parse rules given where the token
+/// can appear inside of statements/expressions. Tokens may also have a "precedence" value that indicates
+/// to the parser how to parse the operand[s] of an operator.
 ParseRule rules[] = {
     [TOKEN_LEFT_PAREN]    = {grouping, NULL,   PREC_NONE},
     [TOKEN_RIGHT_PAREN]   = {NULL,     NULL,   PREC_NONE},
@@ -392,6 +457,7 @@ ParseRule rules[] = {
     [TOKEN_EOF]           = {NULL,     NULL,   PREC_NONE},
 };
 
+/// Parse and emit bytecode for the next portion of an expression given the provided precedence value.
 static void parsePrecedence(Precedence precedence) {
     advance();
     ParseFn prefixRule = getRule(parser.previous.type)->prefix;
@@ -414,14 +480,17 @@ static void parsePrecedence(Precedence precedence) {
     }
 }
 
+/// Convenience for looking up a rule for a provided token type.
 static ParseRule* getRule(TokenType type) {
     return &rules[type];
 }
 
+/// Parse an expression with the lowest precedence
 static void expression() {
     parsePrecedence(PREC_ASSIGNMENT);
 }
 
+/// Parse and emit bytecode for every declaration in a block until a '}' is encountered.
 static void block() {
     while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF)) {
         declaration();
@@ -430,6 +499,7 @@ static void block() {
     consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
+/// Parse emit bytecode for a variable declaration
 static void varDeclaration() {
     uint8_t global = parseVariable("Expect variable name.");
 
@@ -443,18 +513,25 @@ static void varDeclaration() {
     defineVariable(global);
 }
 
+/// Parse and emit bytecode for an expression statement, which is an expression followed by a semicolon.
+/// Expressions have a "stack effect" of 1, and statements have a stack effect of 0, so after parsing an expression,
+/// we emit an `OP_POP` instruction to pop the value off of the stack.
 static void expressionStatement() {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
     emitByte(OP_POP);
 }
 
+/// Parse and emit bytecode for an expression, then emit an instruction to print the value on the top of the stack.
 static void printStatement() {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
     emitByte(OP_PRINT);
 }
 
+/// After parsing a declaration, if panic mode is set, the compiler will "synchronize" its state by
+/// parsing and discarding tokens until it reaches a "synchronization point." At this point, compilation
+/// proceeds and more errors may be reported.
 static void synchronize() {
     parser.panicMode = false;
 
@@ -479,6 +556,7 @@ static void synchronize() {
     }
 }
 
+/// Parse and emit bytecode for a declaration, which can be a variable declaration or a statement.
 static void declaration() {
     if (match(TOKEN_VAR)) {
         varDeclaration();
@@ -489,6 +567,7 @@ static void declaration() {
     if (parser.panicMode) synchronize();
 }
 
+/// Parse and emit bytecode for a statement
 static void statement() {
     if (match(TOKEN_PRINT)) {
         printStatement();
@@ -501,6 +580,8 @@ static void statement() {
     }
 }
 
+/// Initialize a compiler and compile every declaration in the provided source string until an EOF token is
+/// reached.
 bool compile(const char* source, Chunk* chunk) {
     initScanner(source);
     Compiler compiler;
