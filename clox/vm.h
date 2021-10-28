@@ -8,13 +8,21 @@
 #define STACK_MAX 256
 
 typedef struct {
+    /// The current chunk of bytecode being evaluated
     Chunk* chunk;
     /// Instruction pointer
     uint8_t* ip;
+    /// The stack on which expression operands and local variables are stored
     Value stack[STACK_MAX];
+    /// A pointer to the top value on the stack
     Value* stackTop;
+    /// The collection of global variables in use
     Table globals;
+    /// The collection of all unique strings in use. The VM uses "String Interning" to ensure that only
+    /// one copy of each unique string is created and stored.
+    /// https://en.wikipedia.org/wiki/String_interning
     Table strings;
+    /// A linked-list of all objects in memory. This is used for garbage collection.
     Obj* objects;
 } VM;
 

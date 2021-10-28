@@ -45,6 +45,13 @@ typedef enum {
     OP_NEGATE,
     /// Print a value
     OP_PRINT,
+    /// Jump to a different instruction by offsetting the `ip` by the amount of the 16-bit operand
+    OP_JUMP,
+    /// Jump to a different instruction by offsetting the `ip` by the amount of the 16-bit operand if the
+    /// stack top contains a falsey value.
+    OP_JUMP_IF_FALSE,
+    /// Similar to `OP_JUMP` except used to jump backwards rather than forwards.
+    OP_LOOP,
     /// Return from the current function
     OP_RETURN,
 } OpCode;

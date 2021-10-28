@@ -28,8 +28,8 @@ typedef struct {
 /// When parsing an expression with an operator, the parser uses this hierarchy to determine the extent of the
 /// subexpression to use as the subsequent operand.
 /// For example, consider the expression `1 + 2 * 3`. The `2 * 3` portion of the full expression needs to be grouped
-/// and evaluated first in order to become the right operand to the plus expression. After we've parsed the "plus"
-/// token, we use this precedence hierarchy to effectively say, "keep parsing tokens to use in the right operand
+/// and evaluated first in order to become the trailing operand to the plus expression. After we've parsed the "plus"
+/// token, we use this precedence hierarchy to effectively say, "keep parsing tokens to use in the trailing operand
 /// so long as the token precedence continues to be higher than `PREC_TERM`, which is the precedence of the
 /// plus operator.
 typedef enum {
@@ -158,6 +158,29 @@ static void emitBytes(uint8_t byte1, uint8_t byte2) {
     emitByte(byte2);
 }
 
+/// Emit bytecode to jump backwards to the start of a loop, indicated by the provided `loopStart`. This is just like
+/// an unconditional jump, except it jumps backwards.
+static void emitLoop(int loopStart) {
+    emitByte(OP_LOOP);
+
+    int offset = currentChunk()->count - loopStart + 2;
+    if (offset > UINT16_MAX) error("Loop body too large.");
+
+    emitByte((offset >> 8) & 0xff);
+    emitByte(offset & 0xff);
+}
+
+/// Emit bytecode for a jump instruction. This also emits placeholder bytes for the jump offset beause
+/// we haven't compiled the statement we'll need to jump over yet. Later, once we've compiled that
+/// statement, we will "back-patch" this instruction with the appropriate operand.
+static int emitJump(uint8_t instruction) {
+    emitByte(instruction);
+    emitByte(0xff);
+    emitByte(0xff);
+    /// Return the location of the jump instruction in the chunk so we know how to back-patch it.
+    return currentChunk()->count - 2;
+}
+
 /// Append the `OP_RETURN` opcode onto the current chunk
 static void emitReturn() {
     emitByte(OP_RETURN);
@@ -178,6 +201,22 @@ static uint8_t makeConstant(Value value) {
 /// Emit the necessary bytecode to push the provided value onto the stack
 static void emitConstant(Value value) {
     emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
+/// Previously, we emitted bytecode for a jump instruction, but we didn't know what to use as the operand
+/// for the instruction because we hadn't yet compiled the statement we would need to jump over. Now
+/// that the statement is compiled, we use a trick called "backpatching" to update the operand of the
+/// previously compiled jump instruction to use the correct offset.
+static void patchJump(int offset) {
+    // -2 to adjust for the bytecode for the jump offset itself.
+    int jump = currentChunk()->count - offset - 2;
+
+    if (jump > UINT16_MAX) {
+        error("Too much code to jump over.");
+    }
+
+    currentChunk()->code[offset] = (jump >> 8) & 0xff;
+    currentChunk()->code[offset + 1] = jump & 0xff;
 }
 
 /// Initialize the provided compiler struct
@@ -317,8 +356,19 @@ static void defineVariable(uint8_t global) {
     emitBytes(OP_DEFINE_GLOBAL, global);
 }
 
-/// Emit bytecode for the binary operator by evaluating its righthand operand. This function uses the precedence
-/// rule of the operator to determine the extent of the expression to parse into the right operand.
+/// Emit bytecode for an "and" expression. Because "and" uses short-circuitry, this operator does control-flow,
+/// so we emit a jump instruction along with the bytecode of the trailing operand.
+static void and_(bool canAssign) {
+    int endJump = emitJump(OP_JUMP_IF_FALSE);
+
+    emitByte(OP_POP);
+    parsePrecedence(PREC_AND);
+
+    patchJump(endJump);
+}
+
+/// Emit bytecode for the binary operator by evaluating its trailing operand. This function uses the precedence
+/// rule of the operator to determine the extent of the expression to parse into the trailing operand.
 static void binary(bool canAssign) {
     TokenType operatorType = parser.previous.type;
     ParseRule* rule = getRule(operatorType);
@@ -359,6 +409,18 @@ static void grouping(bool canAssign) {
 static void number(bool canAssign) {
     double value = strtod(parser.previous.start, NULL);
     emitConstant(NUMBER_VAL(value));
+}
+
+/// Emit bytecode for an "or" expression
+static void or_(bool canAssign) {
+    int elseJump = emitJump(OP_JUMP_IF_FALSE);
+    int endJump = emitJump(OP_JUMP);
+
+    patchJump(elseJump);
+    emitByte(OP_POP);
+
+    parsePrecedence(PREC_OR);
+    patchJump(endJump);
 }
 
 /// Add a string literal to the constants table and emit bytecode to push the value onto the stack
@@ -437,7 +499,7 @@ ParseRule rules[] = {
     [TOKEN_IDENTIFIER]    = {variable, NULL,   PREC_NONE},
     [TOKEN_STRING]        = {string,   NULL,   PREC_NONE},
     [TOKEN_NUMBER]        = {number,   NULL,   PREC_NONE},
-    [TOKEN_AND]           = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_AND]           = {NULL,     and_,   PREC_AND},
     [TOKEN_CLASS]         = {NULL,     NULL,   PREC_NONE},
     [TOKEN_ELSE]          = {NULL,     NULL,   PREC_NONE},
     [TOKEN_FALSE]         = {literal,  NULL,   PREC_NONE},
@@ -445,7 +507,7 @@ ParseRule rules[] = {
     [TOKEN_FUN]           = {NULL,     NULL,   PREC_NONE},
     [TOKEN_IF]            = {NULL,     NULL,   PREC_NONE},
     [TOKEN_NIL]           = {literal,  NULL,   PREC_NONE},
-    [TOKEN_OR]            = {NULL,     NULL,   PREC_NONE},
+    [TOKEN_OR]            = {NULL,     or_,    PREC_OR},
     [TOKEN_PRINT]         = {NULL,     NULL,   PREC_NONE},
     [TOKEN_RETURN]        = {NULL,     NULL,   PREC_NONE},
     [TOKEN_SUPER]         = {NULL,     NULL,   PREC_NONE},
@@ -522,11 +584,110 @@ static void expressionStatement() {
     emitByte(OP_POP);
 }
 
+/// Emit bytecode for a "for" statement
+static void forStatement() {
+    beginScope();
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+
+    // Parse the initializer, which can be either a variable declaration,
+    // an expression, or omitted completely
+    if (match(TOKEN_SEMICOLON)) {
+        // No initializer.
+    } else if (match(TOKEN_VAR)) {
+        varDeclaration();
+    } else {
+        expressionStatement();
+    }
+
+    int loopStart = currentChunk()->count;
+
+    // Parse the condition. It is parsed using `expression()` rather than
+    // `expressionStatement()` because we don't want the value to be popped
+    // of the stack since it is used by the jump instruction.
+    int exitJump = -1;
+    if (!match(TOKEN_SEMICOLON)) {
+        expression();
+        consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+
+        // Jump out of the loop if the condition is false.
+        exitJump = emitJump(OP_JUMP_IF_FALSE);
+        emitByte(OP_POP); // Condition.
+    }
+
+    // Parse the increment. This code is a bit convoluted since this is a single-pass
+    // compiler. We jump over the increment to the body, execute the body, jump back
+    // to the increment, then jump back to the original loop start.
+    if (!match(TOKEN_RIGHT_PAREN)) {
+        int bodyJump = emitJump(OP_JUMP);
+        int incrementStart = currentChunk()->count;
+        expression();
+        emitByte(OP_POP);
+        consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        emitLoop(loopStart);
+        loopStart = incrementStart;
+        patchJump(bodyJump);
+    }
+
+    statement();
+    emitLoop(loopStart);
+
+    /// If we have a condition, we need to pop the condition result from the stack before proceeding.
+    if (exitJump != -1) {
+        patchJump(exitJump);
+        emitByte(OP_POP); // Condition.
+    }
+
+    endScope();
+}
+
+/// Parse and emit bytecode for a conditional jump
+static void ifStatement() {
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+    int thenJump = emitJump(OP_JUMP_IF_FALSE);
+    // Pop the condition value off the stack since it is not popped by the
+    // `OP_JUMP_IF_FALSE` instruction handler. This will only be evaluated
+    // if no jump occurs (because the condition is true), so we need to add
+    // another pop instruction later.
+    emitByte(OP_POP);
+
+    statement();
+    int elseJump = emitJump(OP_JUMP);
+
+    // "back-patch" the jump with the correct offset
+    patchJump(thenJump);
+    // This is only executed if the jump occurs, meaning that the condition
+    // evaluates to false.
+    emitByte(OP_POP);
+
+    if (match(TOKEN_ELSE)) statement();
+    patchJump(elseJump);
+}
+
 /// Parse and emit bytecode for an expression, then emit an instruction to print the value on the top of the stack.
 static void printStatement() {
     expression();
     consume(TOKEN_SEMICOLON, "Expect ';' after value.");
     emitByte(OP_PRINT);
+}
+
+/// Emit bytecode for a while statement
+static void whileStatement() {
+    int loopStart = currentChunk()->count;
+    consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+    expression();
+    consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+
+    int exitJump = emitJump(OP_JUMP_IF_FALSE);
+    emitByte(OP_POP);
+    statement();
+    emitLoop(loopStart);
+
+    patchJump(exitJump);
+    emitByte(OP_POP);
 }
 
 /// After parsing a declaration, if panic mode is set, the compiler will "synchronize" its state by
@@ -571,6 +732,12 @@ static void declaration() {
 static void statement() {
     if (match(TOKEN_PRINT)) {
         printStatement();
+    } else if (match(TOKEN_FOR)) {
+        forStatement();
+    } else if (match(TOKEN_IF)) {
+        ifStatement();
+    } else if (match(TOKEN_WHILE)) {
+        whileStatement();
     } else if (match(TOKEN_LEFT_BRACE)) {
         beginScope();
         block();
