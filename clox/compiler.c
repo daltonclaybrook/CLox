@@ -62,9 +62,19 @@ typedef struct {
     int depth;
 } Local;
 
+/// Whether the function represents an actual function or the implicit top-level function
+typedef enum {
+    TYPE_FUNCTION,
+    TYPE_SCRIPT
+} FunctionType;
+
 /// The current state of compilation, for example, the list of local variables and the current
 /// scope depth.
 typedef struct {
+    /// The current function being compiled. This might be the implicit top-level function.
+    ObjFunction* function;
+    FunctionType type;
+
     Local locals[UINT8_COUNT];
     int localCount;
     int scopeDepth;
@@ -72,10 +82,9 @@ typedef struct {
 
 Parser parser;
 Compiler* current = NULL;
-Chunk* compilingChunk;
 
 static Chunk* currentChunk() {
-    return compilingChunk;
+    return &current->function->chunk;
 }
 
 /// Report a compilation error to `stderr` and enter "panic mode." Panic mode is use to prevent a cascade
@@ -220,20 +229,33 @@ static void patchJump(int offset) {
 }
 
 /// Initialize the provided compiler struct
-static void initCompiler(Compiler* compiler) {
+static void initCompiler(Compiler* compiler, FunctionType type) {
+    compiler->function = NULL;
+    compiler->type = type;
     compiler->localCount = 0;
     compiler->scopeDepth = 0;
+    compiler->function = newFunction();
     current = compiler;
+
+    Local* local = &current->locals[current->localCount++];
+    local->depth = 0;
+    local->name.start = "";
+    local->name.length = 0;
 }
 
 /// Emit the necessary bytecode to terminate the chunk.
-static void endCompiler() {
+static ObjFunction* endCompiler() {
     emitReturn();
+    ObjFunction* function = current->function;
+
 #ifdef DEBUG_PRINT_CODE
     if (!parser.hadError) {
-        disassembleChunk(currentChunk(), "code");
+        disassembleChunk(currentChunk(), function->name != NULL
+            ? function->name->chars : "<script>");
     }
 #endif
+
+    return function;
 }
 
 /// Increment the current scope depth for local variables on the stack
@@ -749,11 +771,10 @@ static void statement() {
 
 /// Initialize a compiler and compile every declaration in the provided source string until an EOF token is
 /// reached.
-bool compile(const char* source, Chunk* chunk) {
+ObjFunction* compile(const char* source) {
     initScanner(source);
     Compiler compiler;
-    initCompiler(&compiler);
-    compilingChunk = chunk;
+    initCompiler(&compiler, TYPE_SCRIPT);
 
     parser.hadError = false;
     parser.panicMode = false;
@@ -766,6 +787,6 @@ bool compile(const char* source, Chunk* chunk) {
         declaration();
     }
 
-    endCompiler();
-    return !parser.hadError;
+    ObjFunction* function = endCompiler();
+    return parser.hadError ? NULL : function;
 }
